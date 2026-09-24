@@ -1,8 +1,9 @@
 <?php
-
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,10 @@ Route::get('/', function () {
 })->name('home');
 Route::get('/items', [ItemController::class, 'index'])->name('items.index');
 Route::get('/map', [ItemController::class, 'map'])->name('items.map');
+
+//notification routes   
+Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
+Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
 
 // Authenticated item & claim management
 Route::middleware('auth')->group(function () {
@@ -45,15 +50,25 @@ Route::middleware('auth')->group(function () {
         ->name('report.mine');
 });
 
-// Admin-only report management
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/reports', [ReportController::class, 'index'])
-        ->middleware('can:viewAny,App\Models\Report')
-        ->name('admin.reports.index');
+// Admin Panel Group
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    
+    // User Management
+    Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
+    Route::post('/users/{user}/toggle-admin', [AdminDashboardController::class, 'toggleAdmin'])->name('users.toggleAdmin');
+    Route::delete('/users/{user}', [AdminDashboardController::class, 'deleteUser'])->name('users.delete');
 
-    Route::patch('/admin/reports/{report}', [ReportController::class, 'update'])
-        ->middleware('can:update,report')
-        ->name('admin.reports.update');
+    // Item Moderation
+    Route::get('/items', [AdminDashboardController::class, 'items'])->name('items');
+    Route::delete('/items/{item}', [AdminDashboardController::class, 'deleteItem'])->name('items.delete');
+
+    // Claims Oversight
+    Route::get('/claims', [AdminDashboardController::class, 'claims'])->name('claims');
+
+    // Reports Queue
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::patch('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
 });
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
