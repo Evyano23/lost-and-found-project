@@ -1,0 +1,200 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Report Lost or Found Item') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-8">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                @if ($errors->any())
+                    <div class="mb-6 p-4 bg-rose-100 text-rose-800 rounded-md text-sm">
+                        <ul class="list-disc pl-5 space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('items.store') }}" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
+
+                    <!-- Incident Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Type *</label>
+                        <div class="mt-2 grid grid-cols-2 gap-4">
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <input type="radio" name="type" value="lost" {{ old('type', 'lost') === 'lost' ? 'checked' : '' }} class="text-rose-600 focus:ring-rose-500">
+                                <span class="ml-2 font-semibold text-rose-600 dark:text-rose-400">🔴 I Lost An Item</span>
+                            </label>
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <input type="radio" name="type" value="found" {{ old('type') === 'found' ? 'checked' : '' }} class="text-emerald-600 focus:ring-emerald-500">
+                                <span class="ml-2 font-semibold text-emerald-600 dark:text-emerald-400">🟢 I Found An Item</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Category & Title -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category *</label>
+                            <select name="category_id" required class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                                <option value="">Select a Category</option>
+                                @foreach ($categories as $cat)
+                                    <option value="{{ $cat->id }}" @selected(old('category_id') == $cat->id)>{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item Title *</label>
+                            <input type="text" name="title" value="{{ old('title') }}" required placeholder="e.g. Black Leather Fossil Wallet" class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Detailed Description *</label>
+                        <textarea name="description" rows="4" required placeholder="Describe appearance, distinctive scratches, brand, contents, etc." class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">{{ old('description') }}</textarea>
+                    </div>
+
+                    <!-- Date & Location -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date Incident Occurred *</label>
+                            <input type="date" name="date_lost_or_found" value="{{ old('date_lost_or_found', now()->format('Y-m-d')) }}" max="{{ now()->format('Y-m-d') }}" required class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Location / Landmark *</label>
+                            <input type="text" name="location_name" value="{{ old('location_name') }}" required placeholder="e.g. Central Library 2nd Floor, Desk 12" class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                        </div>
+                    </div>
+
+                    <!-- Coordinates (Optional) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Pin the location on the map (optional — click to drop a pin)</label>
+                                <button type="button" id="locate-me-btn" class="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200">📍 Use My Current Location</button>
+                            </div>  
+                            <div id="location-map" style="height: 300px;" class="rounded-md border border-gray-300 dark:border-gray-700"></div>
+                            <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
+                            <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
+                            <p class="text-xs text-gray-400 mt-1" id="coord-display">No location pinned yet</p>
+                        </div>
+
+                    <!-- Photos -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Primary Photo</label>
+                            <input type="file" name="primary_image" accept="image/*" class="mt-1 w-full text-sm text-gray-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Additional Photos (Up to 5)</label>
+                            <input type="file" name="images[]" multiple accept="image/*" class="mt-1 w-full text-sm text-gray-500">
+                        </div>
+                    </div>
+
+                    <!-- Reward & Anonymity -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reward Offered ($ Optional)</label>
+                            <input type="number" step="0.01" name="reward_amount" value="{{ old('reward_amount') }}" placeholder="0.00" class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                        </div>
+                        <div class="pt-4">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="is_anonymous" value="1" {{ old('is_anonymous') ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Post Anonymously (Hides your name and direct contact info)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Direct Contact Details (Optional) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Phone (Optional)</label>
+                            <input type="text" name="contact_phone" value="{{ old('contact_phone', auth()->user()->phone) }}" class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Email (Optional)</label>
+                            <input type="email" name="contact_email" value="{{ old('contact_email', auth()->user()->email) }}" class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <a href="{{ route('items.index') }}" class="px-4 py-2 border rounded-md text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50">Cancel</a>
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md text-sm hover:bg-indigo-500">
+                            Publish Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+@endpush
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const defaultLat = {{ old('latitude', 6.5244) }};
+        const defaultLng = {{ old('longitude', 3.3792) }};
+        const hasExisting = {{ old('latitude') ? 'true' : 'false' }};
+
+        const map = L.map('location-map').setView([defaultLat, defaultLng], hasExisting ? 15 : 6);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    maxZoom: 19,
+    subdomains: 'abcd',
+}).addTo(map);
+
+        let marker = hasExisting ? L.marker([defaultLat, defaultLng]).addTo(map) : null;
+
+        function setLocation(lat, lng) {
+            document.getElementById('latitude').value = lat.toFixed(6);
+            document.getElementById('longitude').value = lng.toFixed(6);
+            document.getElementById('coord-display').textContent = `Pinned: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
+        }
+
+        const locateBtn = document.getElementById('locate-me-btn');
+        if (locateBtn) {
+            locateBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser.');
+                    return;
+                }
+                locateBtn.textContent = 'Locating...';
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 16);
+                        setLocation(lat, lng);
+                        locateBtn.textContent = '📍 Use My Current Location';
+                    },
+                    function (error) {
+                        alert('Could not get your location: ' + error.message);
+                        locateBtn.textContent = '📍 Use My Current Location';
+                    }
+                );
+            });
+        }
+
+        map.on('click', function (e) {
+            setLocation(e.latlng.lat, e.latlng.lng);
+        });
+    });
+</script>
+@endpush
+</x-app-layout>

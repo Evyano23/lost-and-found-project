@@ -1,0 +1,82 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('My Submitted Claims') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @if (session('success'))
+                <div class="p-4 bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded-lg">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-900">
+                        <tr>
+                            <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Target Item</th>
+                            <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Your Proof Description</th>
+                            <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Claim Status</th>
+                            <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Submitted Date</th>
+                            <th class="px-6 py-3 text-right font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @forelse ($claims as $claim)
+                            <tr>
+                                <td class="px-6 py-4">
+                                    <a href="{{ route('items.show', $claim->item) }}" class="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                        {{ $claim->item->title }}
+                                    </a>
+                                    <div class="text-xs text-gray-500">📍 {{ $claim->item->location_name }}</div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700 dark:text-gray-300 max-w-xs truncate">
+                                    {{ $claim->proof_description }}
+                                    @if ($claim->response_notes)
+                                        <div class="text-xs text-indigo-600 dark:text-indigo-300 mt-1">
+                                            <strong>Response:</strong> {{ $claim->response_notes }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded text-xs font-semibold
+                                        {{ $claim->status->value === 'approved' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : '' }}
+                                        {{ $claim->status->value === 'pending' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : '' }}
+                                        {{ $claim->status->value === 'rejected' ? 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200' : '' }}
+                                        {{ $claim->status->value === 'cancelled' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : '' }}
+                                    ">
+                                        {{ $claim->status->label() }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-xs text-gray-500">
+                                    {{ $claim->created_at->format('M d, Y') }}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    @if ($claim->status->value === 'pending')
+                                        <form method="POST" action="{{ route('claims.cancel', $claim) }}" onsubmit="return confirm('Withdraw this claim?');" class="inline">
+                                            @csrf
+                                            <button type="submit" class="text-rose-600 hover:underline text-xs font-semibold">Withdraw</button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs text-gray-400">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">You haven't filed any ownership claims yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                {{ $claims->links() }}
+            </div>
+        </div>
+    </div>
+</x-app-layout>

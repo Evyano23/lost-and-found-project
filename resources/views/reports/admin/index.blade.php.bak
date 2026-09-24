@@ -1,0 +1,85 @@
+﻿<x-app-layout>
+    <div class="max-w-6xl mx-auto py-8 px-4">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-xl font-semibold">Reported Content</h1>
+
+            <form method="GET" class="flex items-center gap-2">
+                <select name="status" onchange="this.form.submit()" class="text-sm rounded border-gray-300">
+                    <option value="">All Statuses</option>
+                    <option value="pending" @selected(request('status') === 'pending')>Pending</option>
+                    <option value="reviewed" @selected(request('status') === 'reviewed')>Reviewed</option>
+                    <option value="dismissed" @selected(request('status') === 'dismissed')>Dismissed</option>
+                </select>
+            </form>
+        </div>
+
+        @if (session('success'))
+            <div class="mb-4 p-3 bg-green-100 text-green-800 rounded text-sm">{{ session('success') }}</div>
+        @endif
+
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                    <tr>
+                        <th class="px-4 py-3">Type</th>
+                        <th class="px-4 py-3">Reported Item/Claim</th>
+                        <th class="px-4 py-3">Reporter</th>
+                        <th class="px-4 py-3">Reason</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Filed</th>
+                        <th class="px-4 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    @forelse ($reports as $report)
+                        <tr>
+                            <td class="px-4 py-3">{{ $report->type->label() }}</td>
+                            <td class="px-4 py-3">
+                                {{ class_basename($report->reportable_type) }} #{{ $report->reportable_id }}
+                            </td>
+                            <td class="px-4 py-3">{{ $report->reporter->name ?? 'Unknown' }}</td>
+                            <td class="px-4 py-3 max-w-xs truncate">{{ $report->reason ?? '—' }}</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 rounded text-xs font-medium
+                                    @class([
+                                        'bg-yellow-100 text-yellow-800' => $report->status->value === 'pending',
+                                        'bg-green-100 text-green-800' => $report->status->value === 'reviewed',
+                                        'bg-gray-100 text-gray-600' => $report->status->value === 'dismissed',
+                                    ])">
+                                    {{ ucfirst($report->status->value) }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">{{ $report->created_at->diffForHumans() }}</td>
+                            <td class="px-4 py-3">
+                                <form method="POST" action="{{ route('admin.reports.update', $report) }}" class="flex items-center gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    <select name="status" class="text-xs rounded border-gray-300">
+                                        <option value="pending" @selected($report->status->value === 'pending')>Pending</option>
+                                        <option value="reviewed" @selected($report->status->value === 'reviewed')>Reviewed</option>
+                                        <option value="dismissed" @selected($report->status->value === 'dismissed')>Dismissed</option>
+                                    </select>
+                                    <label class="flex items-center gap-1 text-xs">
+                                        <input type="checkbox" name="is_valid" value="1" @checked($report->is_valid)>
+                                        Valid
+                                    </label>
+                                    <button type="submit" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs">
+                                        Save
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-6 text-center text-gray-500">No reports found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            {{ $reports->links() }}
+        </div>
+    </div>
+</x-app-layout>
