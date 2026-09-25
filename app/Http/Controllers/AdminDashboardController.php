@@ -29,7 +29,7 @@ class AdminDashboardController extends Controller
             ->take(5)
             ->get();
 
-        $recent_reports = Report::with(['reporter', 'reportedUser', 'item'])
+        $recent_reports = Report::with(['reporter','reportable'])
             ->where('status', 'pending')
             ->latest()
             ->take(5)
@@ -124,7 +124,7 @@ class AdminDashboardController extends Controller
      */
     public function claims()
     {
-        $claims = Claim::with(['item', 'claimant'])
+        $claims = Claim::with(['item', 'user'])
             ->latest()
             ->paginate(15);
 

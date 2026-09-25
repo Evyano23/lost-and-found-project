@@ -52,10 +52,13 @@
                     <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4">Recently Listed Items</h3>
                     <div class="space-y-3">
                         @forelse($recent_items as $item)
+                            @php
+                                $itemTypeValue = is_object($item->type) ? $item->type->value : $item->type;
+                            @endphp
                             <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
                                 <div>
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded {{ $item->type === 'lost' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}">
-                                        {{ ucfirst($item->type) }}
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded {{ $itemTypeValue === 'lost' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}">
+                                        {{ ucfirst($itemTypeValue) }}
                                     </span>
                                     <p class="text-sm font-medium text-slate-800 dark:text-slate-200 mt-1">{{ $item->title }}</p>
                                     <p class="text-xs text-slate-400">By {{ $item->user->name ?? 'Anonymous' }} • {{ $item->created_at->diffForHumans() }}</p>
@@ -73,11 +76,14 @@
                     <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4">Pending Flagged Reports</h3>
                     <div class="space-y-3">
                         @forelse($recent_reports as $report)
+                            @php
+                                $reportReason = is_object($report->type) ? $report->type->value : ($report->reason ?? 'Flagged Content');
+                            @endphp
                             <div class="p-3 rounded-lg bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30 flex justify-between items-start">
                                 <div>
-                                    <span class="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase">Reason: {{ $report->reason }}</span>
+                                    <span class="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase">Type: {{ ucfirst($reportReason) }}</span>
                                     <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">
-                                        Reported: <strong>{{ $report->reportedUser->name ?? 'User' }}</strong> by {{ $report->reporter->name ?? 'User' }}
+                                        Reported by: <strong>{{ $report->reporter->name ?? 'User' }}</strong>
                                     </p>
                                 </div>
                                 <span class="text-[10px] text-slate-400">{{ $report->created_at->diffForHumans() }}</span>

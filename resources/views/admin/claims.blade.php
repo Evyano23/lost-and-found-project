@@ -37,7 +37,7 @@
                                         <div class="font-medium text-slate-800 dark:text-slate-100 text-sm">{{ $claim->item->title ?? 'Deleted Item' }}</div>
                                     </td>
                                     <td class="p-4">
-                                        {{ $claim->claimant->name ?? 'Unknown User' }}
+                                        {{ $claim->user->name ?? 'Unknown User' }}
                                     </td>
                                     <td class="p-4">
                                         <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase {{ $claim->status === 'approved' ? 'bg-emerald-100 text-emerald-800' : ($claim->status === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800') }}">
