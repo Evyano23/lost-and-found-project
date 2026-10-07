@@ -39,6 +39,11 @@
                                 </td>
                                 <td class="px-6 py-4 text-slate-700 dark:text-slate-300 max-w-xs truncate">
                                     {{ $claim->proof_description }}
+                                    @if ($claim->verificationAnswers->isNotEmpty())
+                                        <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                            <span class="font-medium text-teal-600 dark:text-teal-400">✓ {{ $claim->verificationAnswers->count() }} Verification {{ Str::plural('Answer', $claim->verificationAnswers->count()) }} submitted</span>
+                                        </div>
+                                    @endif
                                     @if ($claim->response_notes)
                                         <div class="text-xs text-teal-600 dark:text-teal-300 mt-1">
                                             <strong>Response:</strong> {{ $claim->response_notes }}

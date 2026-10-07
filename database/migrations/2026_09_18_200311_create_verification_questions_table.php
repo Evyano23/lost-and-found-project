@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('verification_questions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('item_id')->constrained()->cascadeOnDelete();
+            $table->string('question', 500);
             $table->timestamps();
         });
     }

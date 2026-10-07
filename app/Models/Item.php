@@ -92,6 +92,16 @@ class Item extends Model
     }
 
     /**
+     * Verification questions set by the finder/reporter.
+     *
+     * @return HasMany<VerificationQuestion, $this>
+     */
+    public function verificationQuestions(): HasMany
+    {
+        return $this->hasMany(VerificationQuestion::class);
+    }
+
+    /**
      * Scope for lost items.
      */
     public function scopeLost(Builder $query): Builder

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Item;
 use App\Models\Claim;
+use App\Models\Item;
 use App\Models\Report;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
@@ -29,7 +29,7 @@ class AdminDashboardController extends Controller
             ->take(5)
             ->get();
 
-        $recent_reports = Report::with(['reporter','reportable'])
+        $recent_reports = Report::with(['reporter', 'reportable'])
             ->where('status', 'pending')
             ->latest()
             ->take(5)
@@ -49,7 +49,7 @@ class AdminDashboardController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -69,9 +69,9 @@ class AdminDashboardController extends Controller
             return back()->with('error', 'You cannot modify your own admin status.');
         }
 
-        $user->update(['is_admin' => !$user->is_admin]);
+        $user->update(['is_admin' => ! $user->is_admin]);
 
-        return back()->with('status', "User admin privileges updated successfully.");
+        return back()->with('status', 'User admin privileges updated successfully.');
     }
 
     /**

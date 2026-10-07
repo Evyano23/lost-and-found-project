@@ -1,10 +1,11 @@
 <?php
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ClaimController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\ItemController;
+
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\ClaimController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 // Public item discovery routes
@@ -12,12 +13,13 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('items.index');
     }
+
     return view('landing');
 })->name('home');
 Route::get('/items', [ItemController::class, 'index'])->name('items.index');
 Route::get('/map', [ItemController::class, 'map'])->name('items.map');
 
-//notification routes   
+// notification routes
 Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
 Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
 
@@ -39,37 +41,36 @@ Route::middleware('auth')->group(function () {
     Route::post('/claims/{claim}/reject', [ClaimController::class, 'reject'])->name('claims.reject');
     Route::post('/claims/{claim}/cancel', [ClaimController::class, 'cancel'])->name('claims.cancel');
 
+    // Reporting routes (authenticated users)
+    Route::middleware('auth')->group(function () {
+        Route::post('/report/{type}/{id}', [ReportController::class, 'store'])
+            ->where('type', 'item|claim')
+            ->name('report.store');
 
-// Reporting routes (authenticated users)
-Route::middleware('auth')->group(function () {
-    Route::post('/report/{type}/{id}', [ReportController::class, 'store'])
-        ->where('type', 'item|claim')
-        ->name('report.store');
+        Route::get('/my-reports', [ReportController::class, 'myReports'])
+            ->name('report.mine');
+    });
 
-    Route::get('/my-reports', [ReportController::class, 'myReports'])
-        ->name('report.mine');
-});
+    // Admin Panel Group
+    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-// Admin Panel Group
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    
-    // User Management
-    Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
-    Route::post('/users/{user}/toggle-admin', [AdminDashboardController::class, 'toggleAdmin'])->name('users.toggleAdmin');
-    Route::delete('/users/{user}', [AdminDashboardController::class, 'deleteUser'])->name('users.delete');
+        // User Management
+        Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
+        Route::post('/users/{user}/toggle-admin', [AdminDashboardController::class, 'toggleAdmin'])->name('users.toggleAdmin');
+        Route::delete('/users/{user}', [AdminDashboardController::class, 'deleteUser'])->name('users.delete');
 
-    // Item Moderation
-    Route::get('/items', [AdminDashboardController::class, 'items'])->name('items');
-    Route::delete('/items/{item}', [AdminDashboardController::class, 'deleteItem'])->name('items.delete');
+        // Item Moderation
+        Route::get('/items', [AdminDashboardController::class, 'items'])->name('items');
+        Route::delete('/items/{item}', [AdminDashboardController::class, 'deleteItem'])->name('items.delete');
 
-    // Claims Oversight
-    Route::get('/claims', [AdminDashboardController::class, 'claims'])->name('claims');
+        // Claims Oversight
+        Route::get('/claims', [AdminDashboardController::class, 'claims'])->name('claims');
 
-    // Reports Queue
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::patch('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
-});
+        // Reports Queue
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::patch('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
+    });
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

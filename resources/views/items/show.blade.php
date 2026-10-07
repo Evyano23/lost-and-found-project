@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-bold text-2xl text-slate-800 dark:text-slate-100 leading-tight">
@@ -191,8 +191,28 @@
                                     @csrf
                                     <div>
                                         <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Proof Description *</label>
-                                        <textarea name="proof_description" required rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 text-xs focus:border-teal-500 focus:ring-teal-500" placeholder="Describe unique features, markings, or receipts..."></textarea>
+                                        <textarea name="proof_description" required rows="3" class="w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 text-xs focus:border-teal-500 focus:ring-teal-500" placeholder="Describe unique features, markings, or receipts...">{{ old('proof_description') }}</textarea>
                                     </div>
+
+                                    @if ($item->verificationQuestions->isNotEmpty())
+                                        <div class="p-3.5 bg-teal-50/70 dark:bg-teal-950/30 rounded-xl border border-teal-100 dark:border-teal-900/50 space-y-2.5">
+                                            <div class="flex items-center gap-1.5 text-xs font-bold text-teal-800 dark:text-teal-300">
+                                                <svg class="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                                <span>Ownership Verification Questions</span>
+                                            </div>
+                                            <p class="text-[11px] text-teal-700 dark:text-teal-400">The finder set private questions to verify ownership. Please answer them below:</p>
+
+                                            @foreach ($item->verificationQuestions as $question)
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                        {{ $loop->iteration }}. {{ $question->question }} *
+                                                    </label>
+                                                    <input type="text" name="verification_answers[{{ $question->id }}]" value="{{ old('verification_answers.' . $question->id) }}" required placeholder="Your answer..." class="w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 text-xs focus:border-teal-500 focus:ring-teal-500">
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
                                     <div>
                                         <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Proof Photo / Receipt (Optional)</label>
                                         <input type="file" name="proof_image" accept="image/*" class="w-full text-xs text-slate-500 dark:text-slate-400">

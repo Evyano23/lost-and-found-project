@@ -39,9 +39,11 @@ class UpdateItemRequest extends FormRequest
             'contact_email' => ['nullable', 'email', 'max:255'],
             'reward_amount' => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'is_anonymous' => ['nullable', 'boolean'],
-            'primary_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'primary_image' => ['nullable', 'file', 'extensions:jpeg,jpg,png,webp,gif', 'max:5120'],
             'images' => ['nullable', 'array', 'max:5'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'images.*' => ['file', 'extensions:jpeg,jpg,png,webp,gif', 'max:5120'],
+            'verification_questions' => ['nullable', 'array', 'max:5'],
+            'verification_questions.*' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

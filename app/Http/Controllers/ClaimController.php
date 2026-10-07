@@ -8,11 +8,11 @@ use App\Http\Requests\StoreClaimRequest;
 use App\Mail\ClaimApproved;
 use App\Mail\ClaimRejected;
 use App\Mail\ClaimSubmitted;
+use App\Models\Claim;
+use App\Models\Item;
 use App\Notifications\ClaimApprovedNotification;
 use App\Notifications\ClaimRejectedNotification;
 use App\Notifications\ClaimSubmittedNotification;
-use App\Models\Claim;
-use App\Models\Item;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +29,7 @@ class ClaimController extends Controller
     {
         $claims = $request->user()
             ->claims()
-            ->with(['item.category', 'item.user'])
+            ->with(['item.category', 'item.user', 'verificationAnswers.question'])
             ->latest()
             ->paginate(10);
 
@@ -44,7 +44,7 @@ class ClaimController extends Controller
         Gate::authorize('update', $item);
 
         $claims = $item->claims()
-            ->with('user')
+            ->with(['user', 'verificationAnswers.question'])
             ->latest()
             ->paginate(10);
 
@@ -73,6 +73,18 @@ class ClaimController extends Controller
                 'contact_email' => $validated['contact_email'] ?? null,
             ]);
 
+            // Save verification answers if provided
+            if (! empty($validated['verification_answers'])) {
+                foreach ($validated['verification_answers'] as $questionId => $answerText) {
+                    if (! empty(trim($answerText ?? ''))) {
+                        $newClaim->verificationAnswers()->create([
+                            'verification_question_id' => $questionId,
+                            'answer' => trim($answerText),
+                        ]);
+                    }
+                }
+            }
+
             // Transition item status to PENDING_CLAIM if it was ACTIVE
             if ($item->status === ItemStatus::ACTIVE) {
                 $item->update(['status' => ItemStatus::PENDING_CLAIM]);
@@ -81,7 +93,7 @@ class ClaimController extends Controller
             return $newClaim;
         });
 
-               if ($item->user) {
+        if ($item->user) {
             Mail::to($item->user)->send(new ClaimSubmitted($claim));
             $item->user->notify(new ClaimSubmittedNotification($claim));
         }
@@ -103,7 +115,7 @@ class ClaimController extends Controller
 
         $claim->approve($request->filled('notes') ? $request->string('notes')->value() : null);
 
-              if ($claim->user) {
+        if ($claim->user) {
             Mail::to($claim->user)->send(new ClaimApproved($claim));
             $claim->user->notify(new ClaimApprovedNotification($claim));
         }
@@ -124,7 +136,7 @@ class ClaimController extends Controller
 
         $claim->reject($request->filled('notes') ? $request->string('notes')->value() : null);
 
-               if ($claim->user) {
+        if ($claim->user) {
             Mail::to($claim->user)->send(new ClaimRejected($claim));
             $claim->user->notify(new ClaimRejectedNotification($claim));
         }

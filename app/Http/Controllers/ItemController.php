@@ -77,10 +77,10 @@ class ItemController extends Controller
         return view('items.index', compact('items', 'categories'));
     }
 
-        /**
+    /**
      * Show a public map of all active item locations.
      */
-        public function map(): View
+    public function map(): View
     {
         $items = Item::with(['category'])
             ->whereNotNull('latitude')
@@ -154,6 +154,17 @@ class ItemController extends Controller
                 }
             }
 
+            // Save verification questions
+            if (! empty($validated['verification_questions'])) {
+                foreach ($validated['verification_questions'] as $qText) {
+                    if (! empty(trim($qText ?? ''))) {
+                        $item->verificationQuestions()->create([
+                            'question' => trim($qText),
+                        ]);
+                    }
+                }
+            }
+
             return $item;
         });
 
@@ -166,7 +177,7 @@ class ItemController extends Controller
      */
     public function show(Item $item): View
     {
-        $item->load(['category', 'user', 'images']);
+        $item->load(['category', 'user', 'images', 'verificationQuestions']);
 
         $user = auth()->user();
         $canClaim = $user ? Gate::allows('claim', $item) : false;
@@ -182,6 +193,7 @@ class ItemController extends Controller
     {
         Gate::authorize('update', $item);
 
+        $item->load('verificationQuestions');
         $categories = Category::where('is_active', true)->orderBy('name')->get();
 
         return view('items.edit', compact('item', 'categories'));
@@ -209,6 +221,20 @@ class ItemController extends Controller
             }
 
             $item->update($validated);
+
+            // Update verification questions if provided
+            if (array_key_exists('verification_questions', $validated)) {
+                $item->verificationQuestions()->delete();
+                if (! empty($validated['verification_questions'])) {
+                    foreach ($validated['verification_questions'] as $qText) {
+                        if (! empty(trim($qText ?? ''))) {
+                            $item->verificationQuestions()->create([
+                                'question' => trim($qText),
+                            ]);
+                        }
+                    }
+                }
+            }
 
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $file) {

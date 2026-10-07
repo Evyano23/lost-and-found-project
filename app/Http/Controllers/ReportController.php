@@ -35,7 +35,7 @@ class ReportController extends Controller
             $query->where('status', $request->string('status')->value());
         }
 
-              $reports = $query->paginate(20)->withQueryString();
+        $reports = $query->paginate(20)->withQueryString();
 
         $stats = [
             'total' => Report::count(),

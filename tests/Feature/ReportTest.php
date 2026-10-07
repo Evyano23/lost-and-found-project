@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\ReportStatus;
 use App\Enums\ReportType;
 use App\Models\Item;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -30,7 +31,7 @@ class ReportTest extends TestCase
             ]
         )->assertRedirect();
 
-        $report = \App\Models\Report::firstOrFail();
+        $report = Report::firstOrFail();
 
         $this->actingAs($admin)->patch(
             route('admin.reports.update', $report),
@@ -64,7 +65,7 @@ class ReportTest extends TestCase
             ]
         )->assertRedirect();
 
-        $report = \App\Models\Report::firstOrFail();
+        $report = Report::firstOrFail();
 
         $this->actingAs($admin)->patch(
             route('admin.reports.update', $report),

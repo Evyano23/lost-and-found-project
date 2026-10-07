@@ -45,6 +45,27 @@
                             <p class="text-sm text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 p-3 rounded-md">{{ $claim->proof_description }}</p>
                         </div>
 
+                        @if ($claim->verificationAnswers->isNotEmpty())
+                            <div class="mb-4 p-4 bg-teal-50 dark:bg-teal-950/40 rounded-xl border border-teal-100 dark:border-teal-800">
+                                <h4 class="text-xs font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <svg class="h-4 w-4 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                    Verification Questions & Claimant Answers:
+                                </h4>
+                                <div class="space-y-2">
+                                    @foreach ($claim->verificationAnswers as $ans)
+                                        <div class="p-2.5 bg-white dark:bg-gray-900 rounded-lg border border-teal-100 dark:border-gray-800 text-xs">
+                                            <p class="font-semibold text-gray-700 dark:text-gray-300 mb-0.5">
+                                                Q: {{ $ans->question?->question ?? 'Verification Question' }}
+                                            </p>
+                                            <p class="text-teal-800 dark:text-teal-200 pl-2.5 border-l-2 border-teal-500 font-medium">
+                                                A: {{ $ans->answer }}
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         @if ($claim->proof_image)
                             <div class="mb-4">
                                 <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Uploaded Proof / Receipt Photo:</h4>

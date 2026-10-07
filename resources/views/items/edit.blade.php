@@ -114,6 +114,48 @@
                         </div>
                     </div>
 
+                    <!-- Ownership Verification Questions -->
+                    <div class="p-5 bg-teal-50/50 dark:bg-slate-900/60 rounded-2xl border border-teal-100 dark:border-teal-900/40 space-y-3"
+                         x-data="{
+                             questions: {{ json_encode(old('verification_questions', $item->verificationQuestions->pluck('question')->toArray() ?: [''])) }},
+                             addQuestion() {
+                                 if (this.questions.length < 5) {
+                                     this.questions.push('');
+                                 }
+                             },
+                             removeQuestion(index) {
+                                 this.questions.splice(index, 1);
+                                 if (this.questions.length === 0) {
+                                     this.questions.push('');
+                                 }
+                             }
+                         }">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="block text-sm font-semibold text-teal-900 dark:text-teal-200 flex items-center gap-2">
+                                    <svg class="h-4 w-4 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                    Ownership Verification Questions (Optional / Recommended for Found Items)
+                                </label>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Add questions only the real owner can answer. Claimants must answer these before claiming.
+                                </p>
+                            </div>
+                            <button type="button" @click="addQuestion" x-show="questions.length < 5" class="text-xs px-3 py-1.5 bg-teal-600 text-white font-medium rounded-full hover:bg-teal-700 transition">
+                                + Add Question
+                            </button>
+                        </div>
+
+                        <div class="space-y-2 mt-2">
+                            <template x-for="(q, index) in questions" :key="index">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold text-teal-700 dark:text-teal-400 w-6 text-center" x-text="(index + 1) + '.'"></span>
+                                    <input type="text" name="verification_questions[]" x-model="questions[index]" placeholder="e.g. What is the unique engraving or brand mark?" class="flex-1 rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 text-xs focus:border-teal-500 focus:ring-teal-500">
+                                    <button type="button" @click="removeQuestion(index)" x-show="questions.length > 1" class="text-slate-400 hover:text-rose-500 p-1 text-sm font-bold" title="Remove question">&times;</button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
                     <!-- Reward & Anonymity -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                         <div>
