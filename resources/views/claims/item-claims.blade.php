@@ -41,7 +41,23 @@
                         </div>
 
                         <div class="mb-4">
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Proof of Ownership Description:</h4>
+                            @if ($item->type->value === 'lost')
+                                {{-- For LOST items: claimant says they FOUND it.
+                                     Show their details prominently so the poster can verify before approving. --}}
+                                <div class="mb-3 p-3.5 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800">
+                                    <p class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Finder's Verification — Review Before Approving
+                                    </p>
+                                    <p class="text-xs text-amber-700 dark:text-amber-400">
+                                        This person claims they found your lost item. Review their details carefully before approving.
+                                    </p>
+                                </div>
+                            @endif
+
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                                {{ $item->type->value === 'lost' ? "Finder's Description of the Item:" : 'Proof of Ownership Description:' }}
+                            </h4>
                             <p class="text-sm text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 p-3 rounded-md">{{ $claim->proof_description }}</p>
                         </div>
 
@@ -68,7 +84,9 @@
 
                         @if ($claim->proof_image)
                             <div class="mb-4">
-                                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Uploaded Proof / Receipt Photo:</h4>
+                                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                                    {{ $item->type->value === 'lost' ? 'Photo Evidence (Finder Uploaded):' : 'Uploaded Proof / Receipt Photo:' }}
+                                </h4>
                                 <a href="{{ asset('storage/' . $claim->proof_image) }}" target="_blank">
                                     <img src="{{ asset('storage/' . $claim->proof_image) }}" alt="Proof Image" class="h-32 rounded border border-gray-200 dark:border-gray-700 object-cover">
                                 </a>
