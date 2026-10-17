@@ -41,11 +41,11 @@ class AppServiceProvider extends ServiceProvider
         // 1) symfony/mime – register our guesser FIRST (array_unshift in MimeTypes)
         //    so it short-circuits before FinfoMimeTypeGuesser is attempted.
         $mimeTypes = MimeTypes::getDefault();
-        $mimeTypes->registerGuesser(new FallbackMimeTypeGuesser());
+        $mimeTypes->registerGuesser(new FallbackMimeTypeGuesser);
 
         // 2) league/flysystem-local – override both disk drivers so Flysystem
         //    uses ExtensionMimeTypeDetector instead of FinfoMimeTypeDetector.
-        $extDetector = new ExtensionMimeTypeDetector();
+        $extDetector = new ExtensionMimeTypeDetector;
 
         foreach (['local', 'public'] as $diskName) {
             Storage::extend($diskName, function ($app, $config) use ($extDetector) {

@@ -15,24 +15,24 @@ class FallbackMimeTypeGuesser implements MimeTypeGuesserInterface
      * Common image/document extension → MIME map.
      */
     private const MAP = [
-        'jpg'  => 'image/jpeg',
+        'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
-        'png'  => 'image/png',
-        'gif'  => 'image/gif',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
         'webp' => 'image/webp',
-        'svg'  => 'image/svg+xml',
-        'bmp'  => 'image/bmp',
-        'ico'  => 'image/x-icon',
+        'svg' => 'image/svg+xml',
+        'bmp' => 'image/bmp',
+        'ico' => 'image/x-icon',
         'tiff' => 'image/tiff',
-        'tif'  => 'image/tiff',
-        'pdf'  => 'application/pdf',
-        'txt'  => 'text/plain',
-        'csv'  => 'text/csv',
+        'tif' => 'image/tiff',
+        'pdf' => 'application/pdf',
+        'txt' => 'text/plain',
+        'csv' => 'text/csv',
         'json' => 'application/json',
-        'xml'  => 'application/xml',
-        'zip'  => 'application/zip',
-        'mp4'  => 'video/mp4',
-        'mp3'  => 'audio/mpeg',
+        'xml' => 'application/xml',
+        'zip' => 'application/zip',
+        'mp4' => 'video/mp4',
+        'mp3' => 'audio/mpeg',
     ];
 
     public function isGuesserSupported(): bool

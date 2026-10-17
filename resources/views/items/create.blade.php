@@ -79,22 +79,6 @@
                         </div>
                     </div>
 
-                    <!-- Coordinates (Optional) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="md:col-span-2">
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400">Pin the location on the map (optional — click to drop a pin)</label>
-                                <button type="button" id="locate-me-btn" class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 bg-teal-50 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 rounded-full hover:bg-teal-100 dark:hover:bg-teal-900/70 transition">
-                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    <span id="locate-btn-text">Use My Current Location</span>
-                                </button>
-                            </div>
-                            <div id="location-map" style="height: 300px;" class="rounded-2xl border border-slate-300 dark:border-slate-600"></div>
-                            <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
-                            <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
-                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1" id="coord-display">No location pinned yet</p>
-                        </div>
-                    </div>
 
                     <!-- Photos -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -199,70 +183,4 @@
             </div>
         </div>
     </div>
-    @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-@endpush
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const defaultLat = {{ old('latitude', 6.5244) }};
-        const defaultLng = {{ old('longitude', 3.3792) }};
-        const hasExisting = {{ old('latitude') ? 'true' : 'false' }};
-
-        const map = L.map('location-map').setView([defaultLat, defaultLng], hasExisting ? 15 : 6);
-
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    maxZoom: 19,
-    subdomains: 'abcd',
-}).addTo(map);
-
-        let marker = hasExisting ? L.marker([defaultLat, defaultLng]).addTo(map) : null;
-
-        function setLocation(lat, lng) {
-            document.getElementById('latitude').value = lat.toFixed(6);
-            document.getElementById('longitude').value = lng.toFixed(6);
-            document.getElementById('coord-display').textContent = `Pinned: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-
-            if (marker) {
-                marker.setLatLng([lat, lng]);
-            } else {
-                marker = L.marker([lat, lng]).addTo(map);
-            }
-        }
-
-        const locateBtn = document.getElementById('locate-me-btn');
-        const locateBtnText = document.getElementById('locate-btn-text');
-        if (locateBtn) {
-            locateBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (!navigator.geolocation) {
-                    alert('Geolocation is not supported by your browser.');
-                    return;
-                }
-                locateBtnText.textContent = 'Locating...';
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        map.setView([lat, lng], 16);
-                        setLocation(lat, lng);
-                        locateBtnText.textContent = 'Use My Current Location';
-                    },
-                    function (error) {
-                        alert('Could not get your location: ' + error.message);
-                        locateBtnText.textContent = 'Use My Current Location';
-                    }
-                );
-            });
-        }
-
-        map.on('click', function (e) {
-            setLocation(e.latlng.lat, e.latlng.lng);
-        });
-    });
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-@endpush
 </x-app-layout>

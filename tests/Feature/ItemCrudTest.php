@@ -182,4 +182,26 @@ class ItemCrudTest extends TestCase
         $response->assertRedirect(route('items.index'));
         $this->assertDatabaseMissing('items', ['id' => $item->id]);
     }
+
+    public function test_guests_and_users_can_view_items_map(): void
+    {
+        Item::create([
+            'user_id' => $this->user->id,
+            'category_id' => $this->category->id,
+            'title' => 'Lost Keys on Campus',
+            'description' => 'Ring with 3 silver keys',
+            'type' => ItemType::LOST,
+            'status' => ItemStatus::ACTIVE,
+            'date_lost_or_found' => '2026-09-18',
+            'location_name' => 'Campus Quad',
+            'latitude' => 6.5244,
+            'longitude' => 3.3792,
+        ]);
+
+        $response = $this->get(route('items.map'));
+        $response->assertOk();
+        $response->assertSee('Lost & Found Map');
+        $response->assertSee('Lost Keys on Campus');
+        $response->assertSee('items-map');
+    }
 }
