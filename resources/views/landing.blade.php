@@ -1,34 +1,58 @@
     <x-app-layout>
-    <!-- Hero -->
-    <section class="relative overflow-hidden">
-        <div class="absolute inset-0" x-data="{ current: 0, images: @js([asset('images/pexels-adonyi-foto-1416848.jpg'), asset('images/pexels-andrew-5598028.jpg'), asset('images/pexels-barbara-olsen-7869720.jpg'), asset('images/vectorelements-r2y0SW1csk4-unsplash.jpg')]) }" x-init="setInterval(() => { current = (current + 1) % images.length }, 6000)">
-            <template x-for="(img, index) in images" :key="index">
-                <div
-                  class="absolute inset-0 bg-cover bg-[position:50%_25%] transition-opacity duration-1000"
-                    :style="'background-image: url(' + img + ')'"
-                    :class="current === index ? 'opacity-100' : 'opacity-0'"
-                ></div>
-            </template>
-            <div class="absolute inset-0 bg-black/50"></div>
-        </div>
+ <!-- Hero -->
+<section class="relative overflow-hidden min-h-[600px] flex items-center justify-center bg-slate-900">
+    <!-- Direct Hardcoded Path Test -->
+    <div class="absolute inset-0 z-0">
+        <img id="hero-slider-img" src="/images/pexels-adonyi-foto-1416848.jpg" alt="Trove Hero" class="w-full h-full object-cover object-center transition-opacity duration-700">
+        <!-- Dark Overlay -->
+        <div class="absolute inset-0 bg-black/50"></div>
+    </div>
 
-        <div class="relative max-w-5xl mx-auto px-6 py-24 sm:py-32 text-center">
-            <h1 class="hero-fade opacity-0 translate-y-8 transition-all duration-700 text-6xl sm:text-7xl md:text-8xl font-extrabold tracking-tight text-white">
-                Lost it? <span class="text-teal-300">Found it?</span><br>Trove brings it home.
-            </h1>
-            <p class="hero-fade opacity-0 translate-y-8 transition-all duration-700 delay-150 mt-8 text-lg sm:text-xl text-slate-100 max-w-2xl mx-auto">
-                A community-powered lost and found platform with real ownership verification — so the right item finds its way back to the right person, safely.
-            </p>
-            <div class="hero-fade opacity-0 translate-y-8 transition-all duration-700 delay-300 mt-10 flex flex-wrap justify-center gap-4">
-               <a href="{{ route('register') }}" class="px-8 py-3 rounded-full bg-teal-600/80 backdrop-blur-md text-white font-semibold border border-white/20 shadow-sm hover:bg-teal-600/95 hover:-translate-y-0.5 hover:shadow-md transition">
-    Get Started
-</a>
-<a href="{{ route('items.index') }}" class="px-8 py-3 rounded-full bg-white/10 backdrop-blur-md text-white font-semibold border border-white/30 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-md transition">
-    Browse Items
-</a>
-            </div>
+    <!-- Content with Restored Fade Animations -->
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-24 sm:py-32 text-center">
+        <h1 class="hero-fade opacity-0 translate-y-8 transition-all duration-700 text-6xl sm:text-7xl md:text-8xl font-extrabold tracking-tight text-white">
+            Lost it? <span class="text-teal-300">Found it?</span><br>Trove brings it home.
+        </h1>
+        <p class="hero-fade opacity-0 translate-y-8 transition-all duration-700 delay-150 mt-8 text-lg sm:text-xl text-slate-100 max-w-2xl mx-auto">
+            A community-powered lost and found platform with real ownership verification — so the right item finds its way back to the right person, safely.
+        </p>
+        <div class="hero-fade opacity-0 translate-y-8 transition-all duration-700 delay-300 mt-10 flex flex-wrap justify-center gap-4">
+            <a href="{{ route('register') }}" class="px-8 py-3 rounded-full bg-teal-600/80 backdrop-blur-md text-white font-semibold border border-white/20 shadow-sm hover:bg-teal-600/95 hover:-translate-y-0.5 hover:shadow-md transition">
+                Get Started
+            </a>
+            <a href="{{ route('items.index') }}" class="px-8 py-3 rounded-full bg-white/10 backdrop-blur-md text-white font-semibold border border-white/30 hover:bg-white/20 hover:-translate-y-0.5 hover:shadow-md transition">
+                Browse Items
+            </a>
         </div>
-    </section>
+    </div>
+</section>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hero Image Slider Script (1 Minute Interval)
+        const images = [
+            "/images/pexels-adonyi-foto-1416848.jpg",
+            "/images/pexels-andrew-5598028.jpg",
+            "/images/pexels-barbara-olsen-7869720.jpg"
+        ];
+        
+        let currentIndex = 0;
+        const imgElement = document.getElementById('hero-slider-img');
+        
+        if (imgElement) {
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % images.length;
+                imgElement.style.opacity = '0.2';
+                setTimeout(() => {
+                    imgElement.src = images[currentIndex];
+                    imgElement.style.opacity = '1';
+                }, 300);
+            }, 60000);
+        }
+    });
+</script>
+@endpush
 
     <!-- How it works -->
     <section class="py-20 bg-white dark:bg-slate-950">
