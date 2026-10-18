@@ -49,11 +49,6 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN a2enmod rewrite
 
 # Create startup entrypoint script
-# 1. Dynamically binds Apache to Railway's $PORT (fallback to 80)
-# 2. Fixes storage & cache permissions
-# 3. Clears and warms Laravel caches
-# 4. Runs database migrations
-# 5. Executes Apache in foreground
 RUN echo '#!/bin/sh' > /start.sh && \
     echo 'set -e' >> /start.sh && \
     echo 'PORT="${PORT:-80}"' >> /start.sh && \
