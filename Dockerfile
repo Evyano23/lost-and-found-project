@@ -30,44 +30,16 @@ COPY --from=frontend /app/public/build ./public/build
 # Install PHP dependencies without dev packages
 RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
 
-# Configure Apache VirtualHost with DocumentRoot and AllowOverride All
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/public\n\
-    <Directory /var/www/html/public>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
-
 # Set ServerName to suppress warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Create startup entrypoint script
-RUN echo '#!/bin/sh' > /start.sh && \
-    echo 'set -e' >> /start.sh && \
-    echo 'PORT="${PORT:-80}"' >> /start.sh && \
-    echo 'echo "Configuring Apache to listen on port ${PORT}..."' >> /start.sh && \
-    echo 'sed -i "s/Listen 80/Listen ${PORT}/g" /etc/apache2/ports.conf' >> /start.sh && \
-    echo 'sed -i "s/<VirtualHost \*:80>/<VirtualHost \*:${PORT}>/g" /etc/apache2/sites-available/000-default.conf' >> /start.sh && \
-    echo 'echo "Setting storage permissions..."' >> /start.sh && \
-    echo 'chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache' >> /start.sh && \
-    echo 'chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache' >> /start.sh && \
-    echo 'echo "Running Laravel artisan optimizations..."' >> /start.sh && \
-    echo 'php artisan config:clear' >> /start.sh && \
-    echo 'php artisan route:clear' >> /start.sh && \
-    echo 'php artisan view:clear' >> /start.sh && \
-    echo 'echo "Running database migrations..."' >> /start.sh && \
-    echo 'php artisan migrate --force || true' >> /start.sh && \
-    echo 'echo "Starting Apache on port ${PORT}..."' >> /start.sh && \
-    echo 'exec apache2-foreground' >> /start.sh && \
-    chmod +x /start.sh
+# Setup entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 80 8080
 
-CMD ["/start.sh"]
+CMD ["/docker-entrypoint.sh"]
