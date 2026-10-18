@@ -1,0 +1,2 @@
+﻿[phases.setup]
+phpPkgs = ["php84", "php84-mbstring", "php84-xml", "php84-bcmath", "php84-curl", "php84-pdo_mysql", "php84-zip"]
