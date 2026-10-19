@@ -17,17 +17,15 @@ COPY . .
 # Run composer install with --no-scripts
 RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
 
-# Set correct storage permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
 # Configure Apache document root for Laravel's public folder
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 RUN sed -i 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Enable required Apache modules
+# Ensure Apache listens on port 80 and enable rewrite module
+RUN echo "Listen 80" >> /etc/apache2/ports.conf
 RUN a2enmod rewrite
 
 EXPOSE 80
 
-# Start Apache cleanly without blocking on external database calls
-CMD php artisan config:clear && apache2-foreground
+# Fix permissions on every container boot and start Apache
+CMD chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache && php artisan config:clear && apache2-foreground
