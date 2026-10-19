@@ -29,5 +29,5 @@ RUN a2enmod rewrite
 
 EXPOSE 80
 
-# Start Apache and run post-deploy commands
-CMD php artisan config:clear && php artisan config:cache && php artisan route:cache && php artisan migrate --force && apache2-foreground
+# Start Apache cleanly without blocking on external database calls
+CMD php artisan config:clear && apache2-foreground
