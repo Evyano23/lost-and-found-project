@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedInteger('reports_against_count')->default(0)->after('successful_returns_count');
+            if (!Schema::hasColumn('users', 'reports_against_count')) {
+                $table->unsignedInteger('reports_against_count')->default(0);
+            }
         });
     }
 

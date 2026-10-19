@@ -33,8 +33,9 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platfo
 # Set ServerName to suppress warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Enable Apache rewrite module
-RUN a2enmod rewrite
+# Ensure single MPM (prefork) is loaded to prevent AH00534 error, and enable rewrite
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* \
+    && a2enmod mpm_prefork rewrite
 
 # Setup entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh

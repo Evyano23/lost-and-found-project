@@ -5,7 +5,11 @@ set -e
 TARGET_PORT="${PORT:-8080}"
 echo "==> Configuring Apache for Railway on port ${TARGET_PORT}..."
 
-# Configure Apache to listen on both 80, 8080, and $PORT so Railway traffic always hits Apache
+# Ensure only mpm_prefork is loaded to prevent AH00534 error
+rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* 2>/dev/null || true
+a2enmod mpm_prefork 2>/dev/null || true
+
+# Configure Apache to listen on both 80, 8080, and $PORT
 cat <<EOF > /etc/apache2/ports.conf
 Listen 80
 Listen 8080
@@ -35,7 +39,7 @@ php artisan config:clear || true
 php artisan route:clear || true
 php artisan view:clear || true
 
-echo "==> Running database migrations (timeout in 15s to prevent boot freeze)..."
+echo "==> Running database migrations..."
 php artisan migrate --force || echo "==> Migrations will be retried once database is ready."
 
 echo "==> Starting Apache in foreground on port ${TARGET_PORT}..."
