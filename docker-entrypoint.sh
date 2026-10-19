@@ -40,6 +40,9 @@ php artisan view:clear || true
 echo "==> Running database migrations..."
 php artisan migrate --force || echo "==> Migrations will be retried once database is ready."
 
+echo "==> Seeding initial accounts and items..."
+php artisan db:seed --class=InitialDataSeeder --force || echo "==> Initial data seeding completed or skipped."
+
 echo "==> Ensuring storage symlink exists..."
 php artisan storage:link || true
 
