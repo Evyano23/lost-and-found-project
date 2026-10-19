@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# Railway provides PORT, defaulting to 8080 if not provided
+# Railway provides PORT (typically 8080)
 TARGET_PORT="${PORT:-8080}"
 echo "==> Configuring Apache for Railway on port ${TARGET_PORT}..."
 
@@ -9,16 +9,14 @@ echo "==> Configuring Apache for Railway on port ${TARGET_PORT}..."
 rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* 2>/dev/null || true
 a2enmod mpm_prefork 2>/dev/null || true
 
-# Configure Apache to listen on both 80, 8080, and $PORT
+# Configure Apache to listen ONLY on TARGET_PORT (avoids duplicate listeners)
 cat <<EOF > /etc/apache2/ports.conf
-Listen 80
-Listen 8080
 Listen ${TARGET_PORT}
 EOF
 
-# Ensure VirtualHost accepts traffic on all ports
+# Ensure VirtualHost accepts traffic on TARGET_PORT
 cat <<EOF > /etc/apache2/sites-available/000-default.conf
-<VirtualHost *:80 *:8080 *:${TARGET_PORT}>
+<VirtualHost *:${TARGET_PORT}>
     DocumentRoot /var/www/html/public
     <Directory /var/www/html/public>
         Options -Indexes +FollowSymLinks
