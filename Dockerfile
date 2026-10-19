@@ -14,20 +14,18 @@ WORKDIR /var/www/html
 # Copy project files over
 COPY . .
 
-# Run composer install with --no-scripts to completely bypass package:discover crash
+# Run composer install with --no-scripts
 RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
 
 # Set correct storage permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Configure Apache document root for Laravel's public folder
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
-RUN sed -i 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conff
+RUN sed -i 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 RUN a2enmod rewrite
 
-RUN sed -i 's/80/80/g' /etc/apache2/ports.conf
 EXPOSE 80
 
-# Start Apache and run post-deploy commands safely when the container boots up
+# Start Apache and run post-deploy commands
 CMD php artisan config:clear && php artisan config:cache && php artisan route:cache && php artisan migrate --force && apache2-foreground
