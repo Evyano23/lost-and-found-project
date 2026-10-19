@@ -1,8 +1,8 @@
 FROM php:8.4-apache
 
-# Install system dependencies, Apache PHP module, and required PHP extensions
+# Install system dependencies and required PHP extensions
 RUN apt-get update && apt-get install -y \
-    git curl libpng-dev libonig-dev libxml2-dev zip unzip libapache2-mod-php \
+    git curl libpng-dev libonig-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install Composer
@@ -24,8 +24,8 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 RUN sed -i 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Enable required Apache modules for Laravel routing and PHP execution
-RUN a2enmod rewrite proxy_fcgi setenvif
+# Enable required Apache modules
+RUN a2enmod rewrite
 
 EXPOSE 80
 
