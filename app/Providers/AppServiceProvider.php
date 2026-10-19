@@ -32,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (config('app.env') === 'production' || request()->header('X-Forwarded-Proto') === 'https') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
         // ──────────────────────────────────────────────────────────────────
         // FIX: php_fileinfo.dll is blocked by Windows Application Control.
         // Replace ALL finfo-dependent MIME detection with extension-based

@@ -40,5 +40,8 @@ php artisan view:clear || true
 echo "==> Running database migrations..."
 php artisan migrate --force || echo "==> Migrations will be retried once database is ready."
 
+echo "==> Ensuring storage symlink exists..."
+php artisan storage:link || true
+
 echo "==> Starting Apache in foreground on port ${TARGET_PORT}..."
 exec apache2-foreground
