@@ -22,10 +22,11 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # Configure Apache document root for Laravel's public folder
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -s 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -s 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
+RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+RUN sed -i 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conff
 RUN a2enmod rewrite
 
+RUN sed -i 's/80/80/g' /etc/apache2/ports.conf
 EXPOSE 80
 
 # Start Apache and run post-deploy commands safely when the container boots up
