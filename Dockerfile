@@ -21,11 +21,17 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platfo
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 RUN sed -i 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Ensure Apache listens on port 80 and enable rewrite module
-RUN echo "Listen 80" >> /etc/apache2/ports.conf
+# Enable Apache rewrite module
 RUN a2enmod rewrite
 
 EXPOSE 80
 
-# Fix permissions on every container boot and start Apache
-CMD chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache && php artisan config:clear && apache2-foreground
+# Create a start script to fix permissions and launch Apache cleanly
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache' >> /start.sh && \
+    echo 'chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache' >> /start.sh && \
+    echo 'php artisan config:clear' >> /start.sh && \
+    echo 'exec apache2-foreground' >> /start.sh && \
+    chmod +x /start.sh
+
+CMD ["/start.sh"]
