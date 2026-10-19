@@ -29,4 +29,4 @@ RUN a2enmod rewrite
 EXPOSE 80
 
 # Start Apache and run post-deploy commands safely when the container boots up
-CMD php artisan config:cache && php artisan route:cache && php artisan migrate --force && apache2-foreground
+CMD php artisan config:clear && php artisan config:cache && php artisan route:cache && php artisan migrate --force && apache2-foreground
